@@ -1,6 +1,7 @@
 package com.tencent.qcloud.roomservice.webrtc.logic;
 
 import com.tencent.qcloud.roomservice.webrtc.common.Config;
+import com.tencent.qcloud.roomservice.webrtc.pojo.Member;
 import com.tencent.qcloud.roomservice.webrtc.pojo.WebRTCRoom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +41,10 @@ public class WebRTCRoomMgr  implements InitializingBean {
         int timeout = Config.WebRTCRoom.heartBeatTimeout;
 
         for (WebRTCRoom room : webRTCRoomMap.values()) {
-            Iterator<Map.Entry<String, Long>> entries = room.getPushersMap().entrySet().iterator();
+            Iterator<Map.Entry<String, Member>> entries = room.getMembersMap().entrySet().iterator();
             while (entries.hasNext()) {
-                Map.Entry<String, Long> entry = entries.next();
-                if (currentTS - entry.getValue() > timeout) {
+                Map.Entry<String, Member> entry = entries.next();
+                if (currentTS - entry.getValue().getTimeStamp() > timeout) {
                     entries.remove();
                 }
             }
@@ -63,9 +64,9 @@ public class WebRTCRoomMgr  implements InitializingBean {
             if (roomCnt >= cnt)
                 break;
 
-            log.info("getRoomList roomID: " + value.getRoomID() + ", pushers count: " + value.getPushersCnt());
+            log.info("getRoomList roomID: " + value.getRoomID() + ", members count: " + value.getMembersCnt());
 
-            if (value.getPushersCnt() != 0) {
+            if (value.getMembersCnt() != 0) {
                 if (cursor >= index) {
                     resultList.add(value);
                     ++roomCnt;
@@ -85,12 +86,12 @@ public class WebRTCRoomMgr  implements InitializingBean {
     /**
      * 创建房间
      */
-    public void creatRoom(String roomID, String userID, String roomInfo) {
+    public void creatRoom(String roomID, String userID, String nickName, String roomInfo) {
         WebRTCRoom webRTCRoom = new WebRTCRoom();
         webRTCRoom.setRoomID(roomID);
         webRTCRoom.setRoomInfo(roomInfo);
-        webRTCRoom.addPusher(userID);
-        log.info("creatRoom roomID: " + roomID + ", userID: " + userID);
+        webRTCRoom.addMember(userID, nickName);
+        log.info("creatRoom roomID: " + roomID + ", userID: " + userID + ", nickName: " + nickName);
         webRTCRoomMap.put(roomID, webRTCRoom);
     }
 
@@ -104,10 +105,10 @@ public class WebRTCRoomMgr  implements InitializingBean {
     /**
      * 用户是否在房间中
      */
-    public boolean isPusherExist(String roomID, String userID) {
+    public boolean isMemberExist(String roomID, String userID) {
         WebRTCRoom webRTCRoom = webRTCRoomMap.get(roomID);
         if (webRTCRoom != null) {
-            return webRTCRoom.isPusher(userID);
+            return webRTCRoom.isMember(userID);
         }
         return false;
     }
@@ -118,8 +119,8 @@ public class WebRTCRoomMgr  implements InitializingBean {
      */
     public void updateTimeStamp(String roomID, String userID) {
         WebRTCRoom webRTCRoom = webRTCRoomMap.get(roomID);
-        if (webRTCRoom != null && webRTCRoom.isPusher(userID)) {
-            webRTCRoom.updatePusher(userID);
+        if (webRTCRoom != null && webRTCRoom.isMember(userID)) {
+            webRTCRoom.updateMember(userID);
         }
     }
 
@@ -130,27 +131,35 @@ public class WebRTCRoomMgr  implements InitializingBean {
         int count = 0;
         WebRTCRoom webRTCRoom = webRTCRoomMap.get(roomID);
         if (webRTCRoom != null) {
-            count = webRTCRoom.getPushersCnt();
+            count = webRTCRoom.getMembersCnt();
         }
         return count;
     }
 
     /**
-     * 删除推流者
+     * 删除成员
      */
-    public void delPusher(String roomID, String userID) {
+    public void delMember(String roomID, String userID) {
         WebRTCRoom webRTCRoom = webRTCRoomMap.get(roomID);
         if (webRTCRoom != null) {
-            webRTCRoom.delPusher(userID);
-            log.info("delPusher roomID: " + roomID + ", userID: " + userID);
+            webRTCRoom.delMember(userID);
+            log.info("delMember roomID: " + roomID + ", userID: " + userID);
         }
     }
 
-    public void addPusher(String roomID, String userID) {
+    public void addMember(String roomID, String userID, String nickName) {
         WebRTCRoom webRTCRoom = webRTCRoomMap.get(roomID);
         if (webRTCRoom != null) {
-            webRTCRoom.addPusher(userID);
-            log.info("addPusher roomID: " + roomID + ", userID: " + userID);
+            webRTCRoom.addMember(userID, nickName);
+            log.info("addMember roomID: " + roomID + ", userID: " + userID);
         }
+    }
+
+    public ArrayList<Member> getMembers(String roomID) {
+        WebRTCRoom webRTCRoom = webRTCRoomMap.get(roomID);
+        if (webRTCRoom != null) {
+            return webRTCRoom.getMembers();
+        }
+        return null;
     }
 }

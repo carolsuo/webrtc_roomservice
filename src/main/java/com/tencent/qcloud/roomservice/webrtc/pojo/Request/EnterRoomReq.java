@@ -2,6 +2,7 @@ package com.tencent.qcloud.roomservice.webrtc.pojo.Request;
 
 public class EnterRoomReq {
     private String userID = "";
+    private String nickName = ""; //用户昵称
     private String roomID = "";
 
     public String getUserID() {
@@ -18,5 +19,13 @@ public class EnterRoomReq {
 
     public void setRoomID(String roomID) {
         this.roomID = roomID;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 }

@@ -54,4 +54,10 @@ public class WebRTCRoom {
     public GetRoomListRsp get_room_list(@RequestBody GetRoomListReq req) {
         return webRTCRoomService.getRoomList(req);
     }
+
+    @ResponseBody
+    @RequestMapping("get_room_members")
+    public GetRoomMembersRsp get_room_members(@RequestBody GetRoomMembersReq req){
+        return webRTCRoomService.getRoomMembers(req);
+    }
 }

@@ -10,4 +10,5 @@ public interface WebRTCRoomService {
     BaseRsp quitRoom(QuitRoomReq req);
     BaseRsp heartbeat(HeartBeatReq req);
     GetRoomListRsp getRoomList(GetRoomListReq req);
+    GetRoomMembersRsp getRoomMembers(GetRoomMembersReq roomID);
 }

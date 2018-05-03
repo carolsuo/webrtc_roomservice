@@ -27,6 +27,7 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
     public CreateRoomRsp createRoom(CreateRoomReq req) {
         CreateRoomRsp rsp = new CreateRoomRsp();
         String userID = req.getUserID();
+        String nickName = req.getNickName();
         String roomInfo = req.getRoomInfo();
 
         if (userID == null || userID.length() == 0 || roomInfo == null || roomInfo.length() == 0) {
@@ -57,7 +58,7 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
         }
 
         // 再创建房间
-        webRTCRoomMgr.creatRoom(roomID, userID, roomInfo);
+        webRTCRoomMgr.creatRoom(roomID, userID, nickName, roomInfo);
         rsp.setUserID(userID);
         rsp.setRoomID(roomID);
         rsp.setRoomInfo(roomInfo);
@@ -69,6 +70,7 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
     public EnterRoomRsp enterRoom(EnterRoomReq req) {
         EnterRoomRsp rsp = new EnterRoomRsp();
         String userID = req.getUserID();
+        String nickName = req.getNickName();
         String roomID = req.getRoomID();
 
         if (userID == null || userID.length() == 0 || roomID == null || roomID.length() == 0) {
@@ -99,7 +101,7 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
             return rsp;
         }
 
-        webRTCRoomMgr.addPusher(roomID, userID);
+        webRTCRoomMgr.addMember(roomID, userID, nickName);
 
         rsp.setUserID(userID);
         rsp.setRoomID(roomID);
@@ -127,7 +129,7 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
         }
 
         // 删除成员
-        webRTCRoomMgr.delPusher(roomID, userID);
+        webRTCRoomMgr.delMember(roomID, userID);
         return rsp;
     }
 
@@ -161,4 +163,28 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
         rsp.setRooms(webRTCRoomMgr.getList(req.getCount(), req.getIndex()));
         return rsp;
     }
+
+    @Override
+    public GetRoomMembersRsp getRoomMembers(GetRoomMembersReq req) {
+        GetRoomMembersRsp rsp= new GetRoomMembersRsp();
+        String roomID = req.getRoomID();
+
+        if (roomID == null || roomID.length() == 0) {
+            rsp.setCode(2);
+            rsp.setMessage("请求失败，缺少参数");
+            return rsp;
+        }
+
+        // 房间不存在
+        if (!webRTCRoomMgr.isRoomExist(roomID)) {
+            rsp.setCode(3);
+            rsp.setMessage("请求失败，房间不存在");
+            return rsp;
+        }
+
+        rsp.setMembers(webRTCRoomMgr.getMembers(roomID));
+
+        return rsp;
+    }
+
 }
