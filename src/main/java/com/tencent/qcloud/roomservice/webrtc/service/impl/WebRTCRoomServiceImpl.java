@@ -9,6 +9,7 @@ import com.tencent.qcloud.roomservice.webrtc.service.WebRTCRoomService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.regex.Pattern;
 
 @Service
 public class WebRTCRoomServiceImpl implements WebRTCRoomService {
@@ -33,6 +34,13 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
         if (userID == null || userID.length() == 0 || roomInfo == null || roomInfo.length() == 0) {
             rsp.setCode(2);
             rsp.setMessage("请求失败，缺少参数");
+            return rsp;
+        }
+
+        String pattern = "^[a-zA-Z][a-zA-Z0-9_]{3,23}$";
+        if (!Pattern.matches(pattern, userID)) {
+            rsp.setCode(7);
+            rsp.setMessage("请求失败，userID含有非法字符或者不符合规范");
             return rsp;
         }
 
@@ -76,6 +84,13 @@ public class WebRTCRoomServiceImpl implements WebRTCRoomService {
         if (userID == null || userID.length() == 0 || roomID == null || roomID.length() == 0) {
             rsp.setCode(2);
             rsp.setMessage("请求失败，缺少参数");
+            return rsp;
+        }
+
+        String pattern = "^[a-zA-Z][a-zA-Z0-9_]{3,23}$";
+        if (!Pattern.matches(pattern, userID)) {
+            rsp.setCode(7);
+            rsp.setMessage("请求失败，userID含有非法字符或者不符合规范");
             return rsp;
         }
 
